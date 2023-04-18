@@ -1,0 +1,16 @@
+label, input[id], output {
+	margin: 4px 0;
+	font-size: 14px;
+}
+label[for], input[id]:not(input[type]), output {
+	display: block;
+}
+output {
+	white-space: pre;
+}
+hr {
+	margin: 8px 0;
+}
+input + hr {
+	margin-top: 12px;
+}

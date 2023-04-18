@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>等效伤害计算</title>
+	<style>
+		#dpsBox input, #defBox input {
+			display: inline-block;
+		}
+		.result {
+			white-space: pre;
+		}
+		.result label {
+			margin: 4px 0 -4px;
+		}
+	</style>
+</head>
+<body>
+	<div id="dpsBox"></div>
+	<hr>
+	<div id="defBox"></div>
+	<hr>
+	<p>
+		<button id="addDps">添加输出</button>
+		<button id="addDef">添加防御</button>
+		<button onclick="openNewWindow()">新窗口</button>
+	</p>
+</body>
+<!-- 引入工具 -->
+<link rel="stylesheet" href="assets/common.css">
+<script src="assets/tools.js"></script>
+<!-- 绑定元素, 方便IDE提示 -->
+<script>
+	window.dpsBox = dgi('dpsBox');
+	window.defBox = dgi('defBox');
+	window.addDps = dgi('addDps');
+	window.addDef = dgi('addDef');
+</script>
+<!-- 实现计算方法 -->
+<script>
+	let dpsIndex = 0;
+	function addDpsItem() {
+		dpsIndex++;
+		window.dpsBox.insertAdjacentHTML('beforeend', `
+			<label style="display: block;">输出${dpsIndex}</label>
+			<input id="dps${dpsIndex}v1" class="damage" type="text" placeholder="伤害分布(电,热,动,爆)">
+			<input id="dps${dpsIndex}v2" class="DPS" type="text" placeholder="DPS">
+		`);
+		window.dpsBox.querySelectorAll('input').forEach(bindValue);
+		window.计算?.();
+	}
+	document.getElementById('addDps').addEventListener('click', addDpsItem);
+	addDpsItem();
+</script>
+<script>
+	let defIndex = 0;
+	function addDefItem() {
+		defIndex++;
+		window.defBox.insertAdjacentHTML('beforeend', `
+			<div class="result"><label>防御${defIndex}</label><output id="output${defIndex}">--数据不完整--</output></div>
+			<input id="def${defIndex}v1" class="defend" type="text" placeholder="抗性分布(电,热,动,爆)">
+			<input id="def${defIndex}v2" class="HP" type="text" placeholder="HP">
+		`);
+		window.defBox.querySelectorAll('input').forEach(bindValue);
+		window.计算?.();
+	}
+	document.getElementById('addDef').addEventListener('click', addDefItem);
+	addDefItem();
+</script>
+<script>
+	function sum(vals) {
+		return showValue(vals.reduce((r, val) => (r + val)));
+	}
+	function 计算() {
+		const damages = [...document.querySelectorAll('.damage')];
+		const defends = [...document.querySelectorAll('.defend')];
+		defends.forEach((defendInput) => {
+			const index = defendInput.id.match(/\d+/)[0];
+			const 抗性 = defendInput.value.split(/[^\d.]/).map(Number);
+			const 血量 = defendInput.nextElementSibling.value.split(/[^\d.]/).map(Number);
+			let 原始输出 = 0;
+			const res = damages.reduce((res, damageInput) => {
+				if (!damageInput.value) return res;
+				const 分布 = damageInput.value.split(/[^\d.]/).map(Number);
+				if (分布.some(isNaN)) return res;
+				let dps = +damageInput.nextElementSibling.value || sum(分布);
+				if (dps < 0) dps = 0;
+				原始输出 += dps;
+				if (!dps) return res;
+				return [0, 1, 2, 3].map(index => res[index] + ((分布[index] || 0) / sum(分布)) * dps * (100 - (抗性[index] || 0)) / 100);
+			}, [0, 0, 0, 0]);
+			const 实际输出 = sum(res);
+			const 有效血量 = 实际输出 ? showValue(血量 / 实际输出 * 原始输出) : '数据不完整';
+			dgi(`output${index}`).innerHTML = isNaN(实际输出) ? '--数据不完整--' : `实际输出: ${实际输出}\n有效血量: ${有效血量}`;
+		});
+	}
+</script>
+</html>

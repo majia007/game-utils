@@ -1,0 +1,88 @@
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>装备叠加计算</title>
+</head>
+<body>
+	<section>
+		<label style="display: block;">加成类型</label>
+		<label>
+			<input type="radio" id="增益" name="加成类型" checked>
+			<span>增益(如输出, 基础数值填写DPS)</span>
+		</label>
+		<br>
+		<label>
+			<input type="radio" id="减益" name="加成类型">
+			<span>减益(如网子, 基础数值填写目标速度)</span>
+		</label>
+		<br>
+		<label>
+			<input type="radio" id="抗性" name="加成类型">
+			<span>抗性, 基础数值填写当前抗性</span>
+		</label>
+		<label style="display: block;">
+			<input type="checkbox" id="叠加惩罚" checked>
+			<span>叠加惩罚</span>
+		</label>
+		<label for="装备系数">装备系数, 多件装备系数普通则空格隔开填写, 如【60 55 5】</label>
+		<input type="text" id="装备系数" data-default="1">%
+		<label for="装备数量">装备数量</label>
+		<input id="装备数量" data-default="2">
+		<label for="基础数值">基础数值</label>
+		<input id="基础数值" data-default="100">
+	</section>
+	<hr>
+	<section>
+		<label for="最终系数">最终系数</label>
+		<output id="最终系数"></output>
+		<label for="最终数值">最终数值</label>
+		<output id="最终数值"></output>
+	</section>
+	<hr>
+	<section>
+		<button onClick="openNewWindow()">新窗口</button>
+	</section>
+</body>
+<!-- 引入工具 -->
+<link rel="stylesheet" href="assets/common.css">
+<script src="assets/tools.js"></script>
+<!-- 绑定元素, 方便IDE提示 -->
+<script>
+	window.增益 = dgi('增益');
+	window.减益 = dgi('减益');
+	window.抗性 = dgi('抗性');
+	window.叠加惩罚 = dgi('叠加惩罚');
+	window.装备系数 = dgi('装备系数');
+	window.装备数量 = dgi('装备数量');
+	window.基础数值 = dgi('基础数值');
+	window.最终系数 = dgi('最终系数');
+	window.最终数值 = dgi('最终数值');
+</script>
+<!-- 实现计算方法 -->
+<script>
+	const 惩罚 = [0, 13.039661, 42.051025, 71.51077, 89.703058, 96.607474, 99.8380707];
+	function 计算() {
+		const 增益 = getValue(window.增益);
+		const 减益 = getValue(window.减益);
+		const 抗性 = getValue(window.抗性);
+		const 叠加惩罚 = getValue(window.叠加惩罚);
+		const 装备系数 = window.装备系数.value;
+		const 装备数量 = getValue(window.装备数量);
+		const 基础数值 = getValue(window.基础数值);
+
+		let 最终系数 = 1;
+		function 计算系数(系数, index) {
+			const 有效系数 = 叠加惩罚 ? (100 - (惩罚[index] ?? 100)) / 100 * 系数 : 系数;
+			最终系数 = 最终系数 * (增益 ? (1 + 有效系数 / 100) : (1 - 有效系数 / 100));
+		}
+		if (装备系数.match(/\d \d/)) {
+			装备系数.trim().split(/\s+/).map(Number).sort((a, b) => (b - a)).forEach(计算系数);
+		} else {
+			for (let i = 0; i < 装备数量; i++) 计算系数(装备系数, i);
+		}
+		window.最终系数.innerHTML = showValue(最终系数, 100) + '%';
+		window.最终数值.innerHTML = 抗性 ? 基础数值 >= 100 ? '100' : showValue(100 - 最终系数 * (100 - 基础数值), 1) : showValue(最终系数, 基础数值);
+	}
+</script>
+</html>

@@ -1,0 +1,75 @@
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>导弹效率计算</title>
+	<style>
+		img {
+			max-width: 100%;
+			height: 356px;
+			object-fit: cover;
+			object-position: center bottom;
+		}
+	</style>
+</head>
+<body>
+	<section>
+		<img src="assets/导弹公式.jpg" alt="系数">
+	</section>
+	<section>
+		<label for="衰减指数">衰减指数</label>
+		<input type="text" id="衰减指数" data-step="0.1">
+		<label for="爆炸半径">爆炸半径</label>
+		<input type="text" id="爆炸半径">
+		<label for="爆炸速度">爆炸速度</label>
+		<input type="text" id="爆炸速度">
+		<label for="目标半径">目标半径</label>
+		<input type="text" id="目标半径">
+		<label for="目标速度">目标速度</label>
+		<input type="text" id="目标速度">
+		<label for="原始输出">原始输出</label>
+		<input type="text" id="原始输出">
+	</section>
+	<hr>
+	<section>
+		<label for="伤害比例">伤害比例</label>
+		<output id="伤害比例"></output>
+		<label for="最终输出">最终输出</label>
+		<output id="最终输出"></output>
+	</section>
+	<hr>
+	<button onclick="openNewWindow()">新窗口</button>
+</body>
+<!-- 引入工具 -->
+<link rel="stylesheet" href="assets/common.css">
+<script src="assets/tools.js"></script>
+<!-- 绑定元素, 方便IDE提示 -->
+<script>
+	window.衰减指数 = dgi('衰减指数');
+	window.爆炸半径 = dgi('爆炸半径');
+	window.爆炸速度 = dgi('爆炸速度');
+	window.目标半径 = dgi('目标半径');
+	window.目标速度 = dgi('目标速度');
+	window.原始输出 = dgi('原始输出');
+	window.伤害比例 = dgi('伤害比例');
+	window.最终输出 = dgi('最终输出');
+</script>
+<!-- 实现计算方法 -->
+<script>
+	function 计算() {
+		const 衰减指数 = getValue(window.衰减指数);
+		const 爆炸半径 = getValue(window.爆炸半径);
+		const 爆炸速度 = getValue(window.爆炸速度);
+		const 目标半径 = getValue(window.目标半径);
+		const 目标速度 = getValue(window.目标速度);
+		const 原始输出 = getValue(window.原始输出);
+		const result = Math.min(
+			1,
+			目标半径 / 爆炸半径,
+			((爆炸速度 * 目标半径) / (爆炸半径 * 目标速度)) ** (Math.log(衰减指数) / Math.log(5.5)),
+		);
+		伤害比例.textContent = result ? showValue(result, 100) + '%' : '数据不足';
+		最终输出.textContent = result ? showValue(原始输出, result) : '数据不足';
+	}
+</script>
+</html>

@@ -1,0 +1,102 @@
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>脑插强度计算</title>
+	<style>
+		.page label, .page input {
+			display: inline-block;
+			margin-inline-end: 4px;
+		}
+	</style>
+</head>
+<body class="page">
+	<section>
+		<label for="一号基础强度">一号基础强度</label>
+		<input type="text" id="一号基础强度" data-default="1">%
+		<br>
+		<label for="一号额外加成">一号额外加成</label>
+		<input type="text" id="一号额外加成">%
+		<hr>
+		<label for="二号基础强度">二号基础强度</label>
+		<input type="text" id="二号基础强度" data-default="2">%
+		<br>
+		<label for="二号额外加成">二号额外加成</label>
+		<input type="text" id="二号额外加成">%
+		<hr>
+		<label for="三号基础强度">三号基础强度</label>
+		<input type="text" id="三号基础强度" data-default="3">%
+		<br>
+		<label for="三号额外加成">三号额外加成</label>
+		<input type="text" id="三号额外加成">%
+		<hr>
+		<label for="四号基础强度">四号基础强度</label>
+		<input type="text" id="四号基础强度" data-default="4">%
+		<br>
+		<label for="四号额外加成">四号额外加成</label>
+		<input type="text" id="四号额外加成">%
+		<hr>
+		<label for="五号基础强度">五号基础强度</label>
+		<input type="text" id="五号基础强度" data-default="5">%
+		<br>
+		<label for="五号额外加成">五号额外加成</label>
+		<input type="text" id="五号额外加成">%
+		<hr>
+		<label for="六号额外加成">六号额外加成</label>
+		<input type="text" id="六号额外加成">%
+		<hr>
+		<label for="其他整体加成">其他整体加成</label>
+		<input type="text" id="其他整体加成">%
+	</section>
+	<hr>
+	<section>
+		<label for="最终加成">最终加成</label>
+		<output id="最终加成"></output>
+	</section>
+	<hr>
+	<section>
+		<button onClick="openNewWindow()">新窗口</button>
+	</section>
+</body>
+<!-- 引入工具 -->
+<link rel="stylesheet" href="assets/common.css">
+<script src="assets/tools.js"></script>
+<!-- 绑定元素, 方便IDE提示 -->
+<script>
+	window.一号基础强度 = dgi('一号基础强度');
+	window.一号额外加成 = dgi('一号额外加成');
+	window.二号基础强度 = dgi('二号基础强度');
+	window.二号额外加成 = dgi('二号额外加成');
+	window.三号基础强度 = dgi('三号基础强度');
+	window.三号额外加成 = dgi('三号额外加成');
+	window.四号基础强度 = dgi('四号基础强度');
+	window.四号额外加成 = dgi('四号额外加成');
+	window.五号基础强度 = dgi('五号基础强度');
+	window.五号额外加成 = dgi('五号额外加成');
+	window.六号额外加成 = dgi('六号额外加成');
+	window.其他整体加成 = dgi('其他整体加成');
+	window.最终加成 = dgi('最终加成');
+</script>
+<!-- 实现计算方法 -->
+<script>
+	function 计算() {
+		const 一号基础强度 = getValue(window.一号基础强度);
+		const 一号额外加成 = getValue(window.一号额外加成);
+		const 二号基础强度 = getValue(window.二号基础强度);
+		const 二号额外加成 = getValue(window.二号额外加成);
+		const 三号基础强度 = getValue(window.三号基础强度);
+		const 三号额外加成 = getValue(window.三号额外加成);
+		const 四号基础强度 = getValue(window.四号基础强度);
+		const 四号额外加成 = getValue(window.四号额外加成);
+		const 五号基础强度 = getValue(window.五号基础强度);
+		const 五号额外加成 = getValue(window.五号额外加成);
+		const 六号额外加成 = getValue(window.六号额外加成);
+		const 其他整体加成 = getValue(window.其他整体加成);
+		const 强度 = [一号基础强度, 二号基础强度, 三号基础强度, 四号基础强度, 五号基础强度];
+		const 加成 = [一号额外加成, 二号额外加成, 三号额外加成, 四号额外加成, 五号额外加成, 六号额外加成];
+		const 系数调整 = 加成.reduce((r, e) => (r * (1 + e / 100)), 1);
+		const 总强度 = 强度.reduce((r, e) => (r * (1 + e * 系数调整 / 100)), 1);
+		最终加成.innerHTML = showValue(总强度 * (1 + 其他整体加成 / 100) - 1, 100) + '%';
+	}
+</script>
+</html>

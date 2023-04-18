@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>定时提醒</title>
+	<script src="https://unpkg.com/fast-unique-numbers@6.0.21/build/es5/bundle.js"></script>
+	<script src="https://unpkg.com/worker-timers-broker@6.0.76/build/es5/bundle.js"></script>
+	<script src="https://unpkg.com/worker-timers@7.0.54/build/es5/bundle.js"></script>
+	<script src="assets/tools.js"></script>
+	<script>
+		if (!window.workerTimers) alert('初始化失败');
+	</script>
+	<style>
+		output b {
+			display: inline-block;
+			width: 42px;
+		}
+	</style>
+</head>
+<body>
+	<p>
+		<input type="text" placeholder="下一次的 分.秒" id="nextTime" data-bind="0">
+		<br>
+		<input type="text" placeholder="提示间隔 分.秒" id="cd" data-bind="0">
+		<br>
+		<input type="text" placeholder="提示语" id="tip" data-bind="0">
+	</p>
+	<hr>
+	<button onclick="reset()">设定</button>
+	<button onclick="openNewWindow()">新窗口</button>
+	<p>
+		<output id="clock"></output>
+		<br>
+		<output id="out"></output>
+	</p>
+	<script>
+		const w = 480;
+		const h = 640;
+		const nextTime = document.getElementById('nextTime');
+		const cd = document.getElementById('cd');
+		const tip = document.getElementById('tip');
+		const clock = document.getElementById('clock');
+		const out = document.getElementById('out');
+		const format = new Intl.DateTimeFormat('zh-Hans-CN', {
+			hour12: false,
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+		});
+		const getCd = () => cd.value.trim() && cd.value.trim().split('.').reduce((m, s) => 1e3 * ((+m || 0) * 60 + (+s || 0))) || 10 * 60e3;
+
+		// 时钟
+		(function loop() {
+			clock.innerHTML = `<b>now</b> ${format.format(new Date())}`;
+			const delay = 1000 - (Date.now() % 1000);
+			setTimeout(loop, delay);
+		})();
+
+		// 倒计时
+		let first = true;
+		let ti;
+		function popWindow(nextPopDate) {
+			ti && workerTimers.clearTimeout(ti);
+			if (!first) {
+				const win = window.open('about:blank', '_blank', `width=${w},height=${h},left=${w / 2},top=${h / 2}`);
+				win.document.write(`<h1>${tip.value.trim() || '时间到'}<h1>`);
+				win.document.body.onclick = () => win.close();
+			} else {
+				first = false;
+			}
+			const now = new Date;
+			const cd = getCd();
+			nextPopDate = nextPopDate || new Date(+now + cd);
+			while (+nextPopDate < +now) nextPopDate = new Date(+nextPopDate + cd);
+			out.innerHTML = `<b>last</b> ${format.format(now)}<br><b>next</b> ${format.format(nextPopDate)}`;
+			ti = workerTimers.setTimeout(() => popWindow(+nextPopDate + cd), +nextPopDate - now);
+		}
+		function reset() {
+			first = true;
+			if (!nextTime.value) return popWindow();
+			const [m = '', s = ''] = nextTime.value.split('.');
+			const next = new Date();
+			next.setMinutes(+m || 0);
+			next.setSeconds(+s || 0);
+			popWindow(next);
+		}
+		document.body.onkeypress = (e) => {
+			console.log(`e.key=`, e.key);
+			if (e.key === 'Enter') reset();
+		};
+		popWindow();
+	</script>
+</body>
+</html>
