@@ -5,28 +5,39 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 	<title>迷雾大陆 - 魔眼升级消耗计算器</title>
 	<script>
-		function calc(level) {
-			let all = 1200 * (100 - level);
-			if (level < 75) all = all - 600 * (75 - level);
-			if (level < 50) all = all - 150 * (50 - level);
-			if (level < 25) all = all - 150 * (25 - level);
+		function calc(current, target) {
+			let currentAll = 1200 * (100 - current);
+			if (current < 75) currentAll = currentAll - 600 * (75 - current);
+			if (current < 50) currentAll = currentAll - 150 * (50 - current);
+			if (current < 25) currentAll = currentAll - 150 * (25 - current);
+			if (current && !target) return currentAll;
+			let targetAll = calc(target);
+			const all = currentAll - targetAll;
 			return {币: all * 5, 券: all / 10, 组: all / 10 / 99};
 		}
 	</script>
 </head>
 <body>
 	<label>
-		当前级别
-		<input type="text" id="input1">
+		当前等级
+		<input type="text" id="current" value="0">
+	</label>
+	<br>
+	<label>
+		目标等级
+		<input type="text" id="target" value="100">
 	</label>
 	<hr>
 	<output id="output"></output>
 	<script>
+		const current = document.getElementById('current');
+		const target = document.getElementById('target');
 		const output = document.getElementById('output');
-		document.getElementById('input1').oninput = function () {
-			const result = calc(+this.value);
+		current.oninput = target.oninput = function () {
+			const result = calc(+current.value, +target.value);
 			output.innerHTML = `<div>币: ${result.币 || '-'}</div><div>券: ${result.券 || '-'}</div><div>组: ${Math.ceil(result.组 * 10) / 10 || '-'}</div>`;
 		};
+		target.oninput();
 	</script>
 </body>
 </html>
