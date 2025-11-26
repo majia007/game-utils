@@ -9,50 +9,65 @@
 	<script src="../assets/tools.js"></script>
 	<!-- 当前页面工具 -->
 	<script>
-		function maxLevelRequired(current) {
-			let all = 1200 * (100 - current);
-			if (current < 75) all = all - 600 * (75 - current);
-			if (current < 50) all = all - 150 * (50 - current);
-			if (current < 25) all = all - 150 * (25 - current);
+		function expRequired(target) {
+			let all = target * 10e4;
+			if (target <= 10) return all;
+			all += (target - 10) * 5e4;
+			if (target <= 20) return all;
+			all += (target - 20) * 5e4;
+			if (target <= 30) return all;
+			all += (target - 30) * 5e4;
+			if (target <= 40) return all;
+			all += (target - 40) * 5e4;
 			return all;
 		}
 		function calc(current, target) {
-			const all = maxLevelRequired(current) - maxLevelRequired(target);
-			return {币: all * 5, 券: all / 10, 组: all / 10 / 99};
+			const all = expRequired(target) - expRequired(current);
+			return {
+				经验: all,
+				铜币: all / 10,
+				铜券: all / 10 / 50,
+				铜组: Math.ceil(all / 10 / 50 / 99 * 10) / 10,
+				银币: all / 25,
+				银券: all / 25 / 50,
+				银组: Math.ceil(all / 25 / 50 / 99 * 10) / 10,
+				金币: all / 50,
+				金券: all / 50 / 50,
+				金组: Math.ceil(all / 50 / 50 / 99 * 10) / 10,
+			};
 		}
 	</script>
 </head>
 <body>
 	<label>
 		当前等级
-		<input type="text" id="current" value="0">
+		<input type="text" id="current" data-default="0" data-min="0" data-max="499">
 	</label>
 	<br>
 	<label>
 		目标等级
-		<input type="text" id="target" value="100">
+		<input type="text" id="target" data-default="500" data-min="1" data-max="500">
 	</label>
 	<hr>
-	<div>五技能全都升到目标等级需要</div>
-	<div>(三个分别要 铜、铜+银、铜+金)</div>
 	<output id="output"></output>
 	<script>
 		const current = document.getElementById('current');
 		const target = document.getElementById('target');
 		const output = document.getElementById('output');
-		current.oninput = target.oninput = function () {
+		function 计算() {
 			if (!current.value.trim() || !target.value.trim()) {
 				output.innerHTML = '-';
 				return;
 			}
-			if (current.value < 0) current.value = 0;
-			if (current.value > 99) current.value = 99;
-			if (target.value < 1) target.value = 1;
-			if (target.value > 100) target.value = 100;
 			const result = calc(+current.value, +target.value);
-			output.innerHTML = `<div>币: ${result.币 || '-'}</div><div>券: ${result.券 || '-'}</div><div>组: ${Math.ceil(result.组 * 10) / 10 || '-'}</div>`;
-		};
-		target.oninput();
+			output.innerHTML = `
+<table border="1" style="border-collapse: collapse" cellpadding="10">
+	<tr><th>经验: ${result.经验}</th><td>币</td><td>券</td><td>组</td></tr>
+	<tr><th>铜</th><td>${result.铜币}</td><td>${result.铜券}</td><td>${result.铜组}</td>
+	<tr><th>银</th><td>${result.银币}</td><td>${result.银券}</td><td>${result.银组}</td></tr>
+	<tr><th>金</th><td>${result.金币}</td><td>${result.金券}</td><td>${result.金组}</td></tr>
+</table>`;
+		}
 	</script>
 </body>
 </html>

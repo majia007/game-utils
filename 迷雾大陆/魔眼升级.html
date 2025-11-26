@@ -25,12 +25,12 @@
 <body>
 	<label>
 		当前等级
-		<input type="text" id="current" value="0">
+		<input type="text" id="current" data-default="0" data-min="0" data-max="99">
 	</label>
 	<br>
 	<label>
 		目标等级
-		<input type="text" id="target" value="100">
+		<input type="text" id="target" data-default="100" data-min="1" data-max="100">
 	</label>
 	<hr>
 	<div>五技能全都升到目标等级需要</div>
@@ -40,7 +40,7 @@
 		const current = document.getElementById('current');
 		const target = document.getElementById('target');
 		const output = document.getElementById('output');
-		current.oninput = target.oninput = function () {
+		function 计算() {
 			if (!current.value.trim() || !target.value.trim()) {
 				output.innerHTML = '-';
 				return;
@@ -51,8 +51,7 @@
 			if (target.value > 100) target.value = 100;
 			const result = calc(+current.value, +target.value);
 			output.innerHTML = `<div>币: ${result.币 || '-'}</div><div>券: ${result.券 || '-'}</div><div>组: ${Math.ceil(result.组 * 10) / 10 || '-'}</div>`;
-		};
-		target.oninput();
+		}
 	</script>
 </body>
 </html>

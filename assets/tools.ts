@@ -42,6 +42,8 @@ function openNewWindow(href: string = location.href, width = 450, height = 880) 
 					localStorage.setItem(input.id, input.checked ? 'true' : 'false');
 				}
 			} else {
+				if (input.value && !isNaN(+input.value) && input.dataset.max && !isNaN(+input.dataset.max)) input.value = Math.min(+input.value, +input.dataset.max).toString();
+				if (input.value && !isNaN(+input.value) && input.dataset.min && !isNaN(+input.dataset.min)) input.value = Math.max(+input.value, +input.dataset.min).toString();
 				localStorage.setItem(input.id, input.value);
 			}
 		}
@@ -77,6 +79,7 @@ function openNewWindow(href: string = location.href, width = 450, height = 880) 
 	document.addEventListener('keydown', handleKeydown);
 })();
 function bindValue(input: HTMLInputElement) {
+	if (input.id) input.id = encodeURIComponent(location.pathname) + '-' + input.id;
 	const id = input.id;
 	if (!id) return;
 	if (isCheck(input)) {
