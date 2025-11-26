@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-	<title>迷雾大陆 - 魔眼升级消耗计算器</title>
+	<title>迷雾大陆 - 瞳炉升级</title>
 	<!-- 引入工具 -->
 	<link href="../assets/common.css">
 	<script src="../assets/tools.js"></script>
@@ -68,6 +68,13 @@
 	<tr><th>金</th><td>${result.金币}</td><td>${result.金券}</td><td>${result.金组}</td></tr>
 </table>`;
 		}
+	</script>
+	<script type="module">
+		const canvas = document.createElement('canvas');
+		import('https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm').then((QRCode) => {
+			QRCode.toCanvas(canvas, location.href);
+			document.body.append(canvas);
+		});
 	</script>
 </body>
 </html>

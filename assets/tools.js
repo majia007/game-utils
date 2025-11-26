@@ -38,14 +38,14 @@ function openNewWindow(href = location.href, width = 450, height = 880) {
     function handleInput(e) {
         if ((e.target instanceof HTMLInputElement)) {
             const input = e.target;
-            if (!input.id)
+            if (!input.dataset.id)
                 return;
             if (isCheck(input)) {
                 if (input.type === 'radio') {
-                    input.name && localStorage.setItem(input.name, input.id);
+                    input.name && localStorage.setItem(input.name, input.dataset.id);
                 }
                 else {
-                    localStorage.setItem(input.id, input.checked ? 'true' : 'false');
+                    localStorage.setItem(input.dataset.id, input.checked ? 'true' : 'false');
                 }
             }
             else {
@@ -53,7 +53,7 @@ function openNewWindow(href = location.href, width = 450, height = 880) {
                     input.value = Math.min(+input.value, +input.dataset.max).toString();
                 if (input.value && !isNaN(+input.value) && input.dataset.min && !isNaN(+input.dataset.min))
                     input.value = Math.max(+input.value, +input.dataset.min).toString();
-                localStorage.setItem(input.id, input.value);
+                localStorage.setItem(input.dataset.id, input.value);
             }
         }
         window['计算']?.();
@@ -92,14 +92,14 @@ function openNewWindow(href = location.href, width = 450, height = 880) {
 })();
 function bindValue(input) {
     if (input.id)
-        input.id = encodeURIComponent(location.pathname) + '-' + input.id;
-    const id = input.id;
+        input.dataset.id = encodeURIComponent(location.pathname) + '-' + input.id;
+    const id = input.dataset.id;
     if (!id)
         return;
     if (isCheck(input)) {
         if (input.type === 'radio') {
             if (input.name && (localStorage.getItem(input.name) !== null)) {
-                input.checked = localStorage.getItem(input.name) === input.id;
+                input.checked = localStorage.getItem(input.name) === input.dataset.id;
             }
         }
         else {
@@ -109,7 +109,7 @@ function bindValue(input) {
         }
     }
     else {
-        input.value = localStorage.getItem(id) || input.dataset.default || '0';
+        input.value = localStorage.getItem(id) || input.dataset.default || '';
     }
 }
 // 初始化绑定

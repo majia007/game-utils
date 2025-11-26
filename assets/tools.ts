@@ -34,17 +34,17 @@ function openNewWindow(href: string = location.href, width = 450, height = 880) 
 	function handleInput(e) {
 		if ((e.target instanceof HTMLInputElement)) {
 			const input = e.target;
-			if (!input.id) return;
+			if (!input.dataset.id) return;
 			if (isCheck(input)) {
 				if (input.type === 'radio') {
-					input.name && localStorage.setItem(input.name, input.id);
+					input.name && localStorage.setItem(input.name, input.dataset.id);
 				} else {
-					localStorage.setItem(input.id, input.checked ? 'true' : 'false');
+					localStorage.setItem(input.dataset.id, input.checked ? 'true' : 'false');
 				}
 			} else {
 				if (input.value && !isNaN(+input.value) && input.dataset.max && !isNaN(+input.dataset.max)) input.value = Math.min(+input.value, +input.dataset.max).toString();
 				if (input.value && !isNaN(+input.value) && input.dataset.min && !isNaN(+input.dataset.min)) input.value = Math.max(+input.value, +input.dataset.min).toString();
-				localStorage.setItem(input.id, input.value);
+				localStorage.setItem(input.dataset.id, input.value);
 			}
 		}
 		window['计算']?.();
@@ -79,13 +79,13 @@ function openNewWindow(href: string = location.href, width = 450, height = 880) 
 	document.addEventListener('keydown', handleKeydown);
 })();
 function bindValue(input: HTMLInputElement) {
-	if (input.id) input.id = encodeURIComponent(location.pathname) + '-' + input.id;
-	const id = input.id;
+	if (input.id) input.dataset.id = encodeURIComponent(location.pathname) + '-' + input.id;
+	const id = input.dataset.id;
 	if (!id) return;
 	if (isCheck(input)) {
 		if (input.type === 'radio') {
 			if (input.name && (localStorage.getItem(input.name) !== null)) {
-				input.checked = localStorage.getItem(input.name) === input.id;
+				input.checked = localStorage.getItem(input.name) === input.dataset.id;
 			}
 		} else {
 			if (localStorage.getItem(id) !== null) {
@@ -93,7 +93,7 @@ function bindValue(input: HTMLInputElement) {
 			}
 		}
 	} else {
-		input.value = localStorage.getItem(id) || input.dataset.default || '0';
+		input.value = localStorage.getItem(id) || input.dataset.default || '';
 	}
 }
 // 初始化绑定
